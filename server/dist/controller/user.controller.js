@@ -8,22 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.changePassword = exports.login = exports.register = void 0;
 const catchasyc_1 = __importDefault(require("../error/catchasyc"));
 const custom_erorr_1 = __importDefault(require("../error/custom.erorr"));
 const user_model_1 = __importDefault(require("../model/user.model"));
@@ -32,37 +21,49 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 exports.register = (0, catchasyc_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
     if (!email || !password || !name) {
-        throw new custom_erorr_1.default("email and password are required", 400);
+        throw new custom_erorr_1.default("Name, email, and password are required", 400);
     }
-    const userExist = yield user_model_1.default.findOne({ email: email });
+    const userExist = yield user_model_1.default.findOne({ email });
     if (userExist) {
-        throw new custom_erorr_1.default("user already exist", 400);
+        throw new custom_erorr_1.default("User already exists", 400);
     }
     const hashedPassword = yield bcrypt_1.default.hash(password, 10);
     const user = yield user_model_1.default.create({
-        email: email,
-        name: name,
+        email,
+        name,
         password: hashedPassword,
     });
-    const { password: _, id: undefined, createdAt, updatedAt } = user, userdata = __rest(user, ["password", "id", "createdAt", "updatedAt"]);
-    console.log(userdata);
-    res.status(201).json(userdata);
+    const userData = {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
+    res.status(201).json(userData);
 }));
 exports.login = (0, catchasyc_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     const { email, password } = req.body;
     if (!email || !password) {
-        throw new custom_erorr_1.default("email and password are required", 400);
+        throw new custom_erorr_1.default("Email and password are required", 400);
     }
-    const user = user_model_1.default.findOne({ email: email });
-    if (!user)
-        throw new custom_erorr_1.default("email and password are required", 400);
+    const user = yield user_model_1.default.findOne({ email: email });
+    if (!user) {
+        throw new custom_erorr_1.default("Invalid credentials", 401);
+    }
     const isMatch = yield bcrypt_1.default.compare(password, user.password);
-    if (!isMatch)
-        throw new custom_erorr_1.default("invalid credentials", 401);
-    const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET, {
+    if (!isMatch) {
+        throw new custom_erorr_1.default("Invalid credentials", 401);
+    }
+    const token = jsonwebtoken_1.default.sign({ id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, {
         expiresIn: "24h",
     });
-    let sanitizedUser = Object.assign(Object.assign({}, user), { id: undefined, password: undefined, createdAt: undefined, updatedAt: undefined });
+    const sanitizedUser = {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+    };
     res
         .status(200)
         .cookie(process.env.COOKIES_NAME, JSON.stringify({ token, user: sanitizedUser }), {
@@ -75,3 +76,24 @@ exports.login = (0, catchasyc_1.default)((req, res) => __awaiter(void 0, void 0,
         token,
     });
 }));
+const changePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const user = yield user_model_1.default.findById(userId);
+    if (!user) {
+        throw new custom_erorr_1.default("user not found", 404);
+    }
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        throw new custom_erorr_1.default("oldPassword and newPassword are required", 400);
+    }
+    const isMatch = yield bcrypt_1.default.compare(oldPassword, user.password);
+    if (!isMatch) {
+        throw new custom_erorr_1.default("invalid old password", 401);
+    }
+    const hashedPassword = yield bcrypt_1.default.hash(newPassword, 10);
+    user.password = hashedPassword;
+    yield user.save();
+    res.status(200).json({ message: "password changed" });
+});
+exports.changePassword = changePassword;
