@@ -1,8 +1,14 @@
 import Router from "express";
-import { register } from "../controller/user.controller";
+import { register, login } from "../controller/user.controller";
+import auth from "../middleware/auth";
 
 const userRouter = Router();
 
 userRouter.post("/register", register);
+userRouter.post("/login", login);
+// userRouter.post("/forgotpassword", forgetPassword);
+// userRouter.post("/resetpassword/:token", resetPassword);
+
+userRouter.use(auth);
 
 export default userRouter;
