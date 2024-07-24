@@ -1,9 +1,17 @@
 import { Request, Response } from "express";
 import asyncCatch from "../error/catchasyc";
 import customError from "../error/custom.erorr";
+import { sendResetPasswordEmail } from "../utils/sendemail";
 import User from "../model/user.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
+export interface JwtPayload {
+  id: string;
+  email: string;
+  name: string;
+}
+
 export const register = asyncCatch(async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
@@ -87,24 +95,92 @@ export const login = asyncCatch(async (req: Request, res: Response) => {
     });
 });
 
-export const changePassword = async (req: Request, res: Response) => {
-  const userId = req.user?.id as string;
+export const changePassword = asyncCatch(
+  async (req: Request, res: Response) => {
+    console.log(req.user);
 
-  const user = await User.findById(userId);
+    const userId = req.user?.id as string;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new customError("user not found", 404);
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      throw new customError("oldPassword and newPassword are required", 400);
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new customError("invalid old password", 401);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "password changed" });
+  }
+);
+
+//not tested
+export const forgetPassword = asyncCatch(
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new customError("Email is required", 400);
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new customError("User not found", 404);
+    }
+
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET_KEY as string,
+      { expiresIn: "10m" }
+    );
+
+    await sendResetPasswordEmail(email, token); //won't work for now
+
+    res.status(200).json({ message: "Email sent" });
+  }
+);
+//not tested
+
+export const resetPassword = asyncCatch(async (req: Request, res: Response) => {
+  const { token } = req.params;
+  const { newPassword, verifiedPassword } = req.body;
+
+  if (!newPassword || !verifiedPassword) {
+    throw new customError(
+      "New password and verified password are required",
+      400
+    );
+  }
+
+  if (newPassword !== verifiedPassword) {
+    throw new customError("Passwords do not match", 400);
+  }
+
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.JWT_SECRET as string);
+  } catch (err) {
+    throw new customError("Invalid or expired token", 401);
+  }
+  //@ts-ignore
+  const user = await User.findById(decodedToken.id);
 
   if (!user) {
-    throw new customError("user not found", 404);
-  }
-
-  const { oldPassword, newPassword } = req.body;
-
-  if (!oldPassword || !newPassword) {
-    throw new customError("oldPassword and newPassword are required", 400);
-  }
-
-  const isMatch = await bcrypt.compare(oldPassword, user.password);
-  if (!isMatch) {
-    throw new customError("invalid old password", 401);
+    throw new customError("User not found", 404);
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -112,5 +188,8 @@ export const changePassword = async (req: Request, res: Response) => {
   user.password = hashedPassword;
   await user.save();
 
-  res.status(200).json({ message: "password changed" });
-};
+  res.status(200).json({ message: "Password updated successfully" });
+});
+
+//TODO
+//USer profile WIth date in it
