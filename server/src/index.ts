@@ -6,6 +6,7 @@ import User from "./model/user.model";
 import Journal from "./model/journalmodel";
 import userRouter from "./router/user.routes";
 import errorHandler from "./controller/error.controller";
+import journalRouter from "./router/journal.routes";
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 })();
 
 app.use("/api/user", userRouter);
+app.use("/api/journal", journalRouter);
 
 app.use(errorHandler);
 

@@ -21,6 +21,7 @@
     "googleapis": "^140.0.1",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.14",
+    "openai": "^4.53.1",
     "prisma": "^5.16.2"
   }
 }

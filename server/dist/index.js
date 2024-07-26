@@ -17,6 +17,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const db_1 = __importDefault(require("./model/db"));
 const user_routes_1 = __importDefault(require("./router/user.routes"));
 const error_controller_1 = __importDefault(require("./controller/error.controller"));
+const journal_routes_1 = __importDefault(require("./router/journal.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -25,6 +26,7 @@ app.use(express_1.default.urlencoded({ extended: true }));
     yield (0, db_1.default)();
 }))();
 app.use("/api/user", user_routes_1.default);
+app.use("/api/journal", journal_routes_1.default);
 app.use(error_controller_1.default);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
