@@ -7,7 +7,7 @@ const openai = new OpenAI({
 export const generateAIContent = async (prompt: string): Promise<string> => {
   try {
     const response = await openai.chat.completions.create({
-      model: "text-davinci-003",
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 150,
     });

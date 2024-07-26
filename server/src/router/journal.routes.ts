@@ -7,6 +7,7 @@ const journalRouter = Router();
 
 journalRouter.use(auth);
 
-journalRouter.post("/add", generateAndRespondAIContent);
+journalRouter.post("/addai", generateAndRespondAIContent);
+journalRouter.post("/add");
 
 export default journalRouter;
