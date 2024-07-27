@@ -29,8 +29,14 @@ export const addJournal = asyncCatch(async (req: Request, res: Response) => {
   if (!title || !content) {
     throw new customError("Title and content are required", 400);
   }
+  const user = req.user.id;
 
-  const journal = new Journal({ title, content, user: req.user._id });
+  const journal = new Journal({
+    title,
+    content,
+    user: user,
+    date: Date.now(),
+  });
   await journal.save();
 
   res.status(201).json({ journal });
@@ -45,7 +51,8 @@ export const getJournals = asyncCatch(async (req: Request, res: Response) => {
 export const getJournal = asyncCatch(async (req: Request, res: Response) => {
   const journal = await Journal.findOne({
     _id: req.params.id,
-    user: req.user._id,
+
+    user: req.user.id,
   });
 
   if (!journal) {
@@ -58,7 +65,7 @@ export const getJournal = asyncCatch(async (req: Request, res: Response) => {
 export const deleteJournal = asyncCatch(async (req: Request, res: Response) => {
   const journal = await Journal.findOneAndDelete({
     _id: req.params.id,
-    user: req.user._id,
+    user: req.user.id,
   });
 
   if (!journal) {

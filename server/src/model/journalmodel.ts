@@ -8,7 +8,13 @@ const journalSchema = new Schema({
     ref: "User",
     required: true,
   },
-  entry: {
+
+  title: {
+    type: String,
+    required: true,
+  },
+
+  content: {
     type: String,
     required: true,
   },
