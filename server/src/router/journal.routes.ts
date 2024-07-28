@@ -15,6 +15,7 @@ journalRouter.use(auth);
 
 journalRouter.post("/addai", generateAndRespondAIContent);
 journalRouter.post("/add", addJournal);
+
 //this is not working
 journalRouter.get("/get", getJournals);
 

@@ -43,6 +43,8 @@ export const addJournal = asyncCatch(async (req: Request, res: Response) => {
 });
 
 export const getJournals = asyncCatch(async (req: Request, res: Response) => {
+  console.log(req.user._id);
+
   const journals = await Journal.find({ user: req.user._id });
 
   res.status(200).json({ journals });
