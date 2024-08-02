@@ -1,16 +1,18 @@
 //import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Navbar from "./components/navbar/Navbar";
 import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import ForgetPassword from "./components/auth/Forgetpassword";
 
 function App() {
   return (
     <>
       <BrowserRouter>
-        <Navbar />
-        <Login />
+        {/* <Login /> */}
+        <ForgetPassword />
         <Routes>
-          <Route path="/" element />
+          {/* <Route path="/" element={Login} />
+          <Route path="/register" element={Register} /> */}
         </Routes>
       </BrowserRouter>
     </>

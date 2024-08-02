@@ -12,6 +12,7 @@ const userRouter = Router();
 
 userRouter.post("/register", register);
 userRouter.post("/login", login);
+
 userRouter.post("/forgotpassword", forgetPassword);
 userRouter.post("/resetpassword/:token", resetPassword);
 

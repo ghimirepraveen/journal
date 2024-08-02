@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../features/auth/authSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { forgotPassword } from "../../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const ForgetPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const darkMode = useSelector((state) => state.theme.darkMode);
@@ -16,23 +14,14 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let valid = true;
-
     if (!email) {
       setEmailError("Email required");
       valid = false;
     } else {
       setEmailError("");
     }
-
-    if (!password) {
-      setPasswordError("Password required");
-      valid = false;
-    } else {
-      setPasswordError("");
-    }
-
     if (valid) {
-      dispatch(login({ email, password })).then((result) => {
+      dispatch(forgotPassword({ email })).then((result) => {
         if (result.meta.requestStatus === "fulfilled") {
           navigate("/dashboard");
         }
@@ -48,12 +37,12 @@ const Login = () => {
     >
       <div className="max-w-md w-full p-8 bg-white dark:bg-gray-900 shadow-lg rounded-lg">
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-3xl font-bold">Login</h2>
+          <h2 className="text-3xl font-bold">Forgetpassword</h2>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block mb-2">Email</label>
+            <label className="block mb-2"> Enter your valid Email</label>
             <input
               type="email"
               value={email}
@@ -62,38 +51,17 @@ const Login = () => {
             />
             {emailError && <p className="text-red-500 mt-1">{emailError}</p>}
           </div>
-          <div className="mb-4">
-            <label className="block mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-            />
-            {passwordError && (
-              <p className="text-red-500 mt-1">{passwordError}</p>
-            )}
-          </div>
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-300"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Sending " : "Sent"}
           </button>
           {error && <p className="text-red-500 m-4">{error}</p>}
-
-          <div className="flex justify-center items-center">
-            <p className="text-black ">
-              Don't have an account{" "}
-              <Link className="text-blue-400" to="#">
-                SignUp
-              </Link>
-            </p>
-          </div>
         </form>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default ForgetPassword;

@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginApi, registerApi } from "../../api/authApi";
+import {
+  loginApi,
+  registerApi,
+  forgotPasswordApi,
+  resetPasswordApi,
+  // changePasswordApi,
+} from "../../api/authApi";
 
 const initialState = {
   user: null,
@@ -32,6 +38,41 @@ export const register = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await forgotPasswordApi(email);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await resetPasswordApi(data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+// export const changePassword = createAsyncThunk(
+//   "auth/changePassword",
+//   async (data, { rejectWithValue }) => {
+//     try {
+//       const response = await changePasswordApi(data);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -55,7 +96,43 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload;
+        state.error = payload.error || "An error occurred";
+      })
+      .addCase(register.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(register.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.user = payload.user;
+        state.token = payload.token;
+      })
+      .addCase(register.rejected, (state, { payload }) => {
+        state.loading = false;
+
+        state.error = payload.error || "An error occurred";
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload.error || "An error occurred";
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload.error || "An error occurred";
       });
   },
 });
