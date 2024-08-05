@@ -127,10 +127,10 @@ export const changePassword = asyncCatch(
   }
 );
 
-//not tested
 export const forgetPassword = asyncCatch(
   async (req: Request, res: Response) => {
     const { email } = req.body;
+    console.log(email);
 
     if (!email) {
       throw new customError("Email is required", 400);
@@ -144,20 +144,21 @@ export const forgetPassword = asyncCatch(
 
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET_KEY as string,
+
+      process.env.JWT_SECRET as string,
       { expiresIn: "10m" }
     );
 
-    await sendResetPasswordEmail(email, token); //won't work for now
+    await sendResetPasswordEmail(email, token);
 
     res.status(200).json({ message: "Email sent" });
   }
 );
-//not tested
 
 export const resetPassword = asyncCatch(async (req: Request, res: Response) => {
   const { token } = req.params;
   const { newPassword, verifiedPassword } = req.body;
+  console.log(token);
 
   if (!newPassword || !verifiedPassword) {
     throw new customError(
@@ -176,8 +177,10 @@ export const resetPassword = asyncCatch(async (req: Request, res: Response) => {
   } catch (err) {
     throw new customError("Invalid or expired token", 401);
   }
-  //@ts-ignore
-  const user = await User.findById(decodedToken.id);
+  console.log(decodedToken);
+  const userId = (decodedToken as any).userId;
+
+  const user = await User.findById(userId);
 
   if (!user) {
     throw new customError("User not found", 404);

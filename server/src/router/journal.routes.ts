@@ -19,7 +19,7 @@ journalRouter.post("/add", addJournal);
 //this is not working
 journalRouter.get("/get", getJournals);
 
-journalRouter.get("/:id", getJournal);
-journalRouter.delete("/:id", deleteJournal);
+journalRouter.get("/getbyid/:id", getJournal);
+journalRouter.delete("/delete/:id", deleteJournal);
 
 export default journalRouter;

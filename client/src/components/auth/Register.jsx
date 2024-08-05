@@ -44,7 +44,7 @@ const Register = () => {
     if (valid) {
       dispatch(register({ name, email, password })).then((result) => {
         if (result.meta.requestStatus === "fulfilled") {
-          navigate("/helllo");
+          navigate("/");
         }
       });
     }
@@ -112,7 +112,7 @@ const Register = () => {
 
           <div className="flex justify-center items-center">
             <p className="text-black ">
-              <Link className="text-black" to="#">
+              <Link className="text-blue-400" to="/">
                 Already have an account
               </Link>
             </p>

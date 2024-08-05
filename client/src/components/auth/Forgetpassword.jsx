@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword } from "../../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [message, setMessage] = useState("");
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const darkMode = useSelector((state) => state.theme.darkMode);
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,7 +22,7 @@ const ForgetPassword = () => {
     if (valid) {
       dispatch(forgotPassword({ email })).then((result) => {
         if (result.meta.requestStatus === "fulfilled") {
-          navigate("/dashboard");
+          setMessage("Email sent successfully.Check your mail.");
         }
       });
     }
@@ -32,7 +31,7 @@ const ForgetPassword = () => {
   return (
     <div
       className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
-        darkMode ? "bg-gray-900 text-black" : "bg-white text-gray-400"
+        darkMode ? "bg-gray-900 text-black" : "bg-white text-black"
       }`}
     >
       <div className="max-w-md w-full p-8 bg-white dark:bg-gray-900 shadow-lg rounded-lg">
@@ -58,6 +57,7 @@ const ForgetPassword = () => {
             {loading ? "Sending " : "Sent"}
           </button>
           {error && <p className="text-red-500 m-4">{error}</p>}
+          {message && <p className="text-green-500 m-4">{message}</p>}
         </form>
       </div>
     </div>

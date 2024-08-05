@@ -49,11 +49,15 @@ export const forgotPassword = createAsyncThunk(
     }
   }
 );
+
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async (data, { rejectWithValue }) => {
+  async ({ token, newPassword, verifiedPassword }, { rejectWithValue }) => {
     try {
-      const response = await resetPasswordApi(data);
+      const response = await resetPasswordApi(token, {
+        newPassword,
+        verifiedPassword,
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

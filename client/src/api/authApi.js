@@ -8,11 +8,11 @@ export const loginApi = (credentials) =>
 export const registerApi = (data) =>
   axios.post(`${API_BASE_URL}/register`, data);
 
-// export const changePasswordApi = (data) =>
-//   axios.put(`${API_BASE_URL}/change-password`, data);
+export const changePasswordApi = (data) =>
+  axios.put(`${API_BASE_URL}/changepassword`, data);
 
 export const forgotPasswordApi = (email) =>
   axios.post(`${API_BASE_URL}/forgotpassword`, email);
 
-export const resetPasswordApi = (data) =>
-  axios.post(`${API_BASE_URL}/resetpassword`, data);
+export const resetPasswordApi = (token, data) =>
+  axios.post(`${API_BASE_URL}/resetpassword/${token}`, data);
